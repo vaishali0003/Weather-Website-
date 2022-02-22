@@ -1,0 +1,104 @@
+{{>navbar}}
+
+<div class="main2">
+
+    <div class="main21">
+        <div class="inputBar">
+            <form action="">
+                <input type="text" id="search" placeholder="Enter the city name">
+                <button class="search_btn" type="submit">search</button>
+            </form>
+        </div>
+
+
+        <div class="weather_box">
+            <div class="box">
+                <div class="dateBox">
+                    <p class="day">TUESDAY</p>
+                    <p class="date_month"><span class="month"></span><span class="date"></span></p>
+                </div>
+                <div class="infoBox">
+                    <div class="loader"></div>
+
+                    <div class="city">Get output here</div>
+                    <div class="temp">
+                        <h1 class="temp_val"></h1>
+                        <span class="temp_status">
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const input = document.getElementById('search');
+    const search = document.querySelector('.search_btn');
+    const day = document.querySelector('.day');
+    const date = document.querySelector('.date');
+    const month = document.querySelector('.month');
+
+
+    const weekday = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+
+    const d = new Date();
+    day.innerText = weekday[d.getDay()];
+
+    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    month.innerText = months[d.getMonth()];
+
+    date.innerText = d.getDate();
+
+
+    const getCityInfo = async (e) => {
+        e.preventDefault();
+        let query = input.value;
+
+        if (query === '') {
+            document.querySelector('.city').innerHTML = '<p style={color:red;}>Invalid City Name</p>';
+            document.querySelector('.temp_val').innerText = '';
+            document.querySelector('.temp_status').innerText = '';
+        }
+        else {
+            try {
+                document.querySelector('.loader').style.display = 'block';
+                document.querySelector('.city').innerText = '';
+                document.querySelector('.temp_val').innerText = '';
+                document.querySelector('.temp_status').innerText = '';
+
+                let url = `http://api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&APPID=18dab456c4ba66ed5c7207884d15386d`;
+                let response = await fetch(url);
+                let data = await response.json();
+                document.querySelector('.loader').style.display = 'none';
+
+                document.querySelector('.city').innerText = data.name;
+                document.querySelector('.temp_val').innerText = data.main.temp + '°C';
+                let temp_type = data.weather[0].main;
+
+
+                let temp_status = document.querySelector('.temp_status');
+                if (temp_type === 'Clouds') {
+                    temp_status.innerHTML = '<i class="fa-solid fa-cloud"></i>'
+                } else if (temp_type === 'Rain') {
+                    temp_status.innerHTML = '<i class="fa-solid fa-cloud-rain"></i>'
+                }
+                else if (temp_type === 'Clear') {
+                    temp_status.innerHTML = '<i class="fa-solid fa-sun"></i>'
+                }
+                else {
+                    temp_status.innerHTML = '<i class="fa-solid fa-sun"></i>'
+                }
+            }
+            catch (error) {
+                document.querySelector('.city').innerText = 'NO DATA PRESENT';
+            }
+        }
+    }
+
+    search.addEventListener('click', getCityInfo);
+</script>
+
+
+{{>footer}}
